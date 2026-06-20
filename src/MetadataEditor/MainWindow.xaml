@@ -1,0 +1,137 @@
+<Window x:Class="MetadataEditor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:MetadataEditor.ViewModels"
+        Title="Metadata Editor"
+        Width="1100"
+        Height="720"
+        MinWidth="900"
+        MinHeight="600"
+        AllowDrop="True"
+        Drop="Window_OnDrop"
+        DragOver="Window_OnDragOver">
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280" />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="3" Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="Add Files..." Command="{Binding AddFilesCommand}" />
+            <TextBlock Text="Drag and drop files anywhere in this window." Margin="12,0,0,0" Opacity="0.7" />
+        </StackPanel>
+
+        <Border Grid.Row="1" Grid.Column="0" BorderBrush="#FFD0D0D0" BorderThickness="1" CornerRadius="6" Padding="8">
+            <DockPanel LastChildFill="True">
+                <TextBlock DockPanel.Dock="Top" Text="Files" FontWeight="SemiBold" Margin="4,4,4,8" />
+                <ListBox ItemsSource="{Binding Files}"
+                         SelectedItem="{Binding SelectedFile}"
+                         DisplayMemberPath="FileName"
+                         BorderThickness="0" />
+            </DockPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" Grid.Column="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="Filesystem Metadata"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,8" />
+                <ItemsControl ItemsSource="{Binding FilesystemFields}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:MetadataFieldViewModel}">
+                            <Border Margin="0,0,0,8"
+                                    Padding="10"
+                                    CornerRadius="6"
+                                    BorderBrush="#FFD0D0D0"
+                                    BorderThickness="1"
+                                    Background="{Binding IsChanged, Converter={StaticResource ChangedFieldBackgroundConverter}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Label}" FontWeight="SemiBold" />
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                             IsReadOnly="{Binding IsEditable, Converter={StaticResource InverseBoolConverter}}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="Photo / Video Metadata"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Margin="0,16,0,8"
+                           Visibility="{Binding HasMediaMetadata, Converter={StaticResource BoolToVisibilityConverter}}" />
+                <ItemsControl ItemsSource="{Binding MediaFields}"
+                              Visibility="{Binding HasMediaMetadata, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:MetadataFieldViewModel}">
+                            <Border Margin="0,0,0,8"
+                                    Padding="10"
+                                    CornerRadius="6"
+                                    BorderBrush="#FFD0D0D0"
+                                    BorderThickness="1"
+                                    Background="{Binding IsChanged, Converter={StaticResource ChangedFieldBackgroundConverter}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Label}" FontWeight="SemiBold" />
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                             IsReadOnly="{Binding IsEditable, Converter={StaticResource InverseBoolConverter}}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="No embedded media metadata was found for this file."
+                           Opacity="0.7"
+                           Margin="0,8,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasMediaMetadata}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding SelectedFile}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="2" Grid.ColumnSpan="3" Margin="0,12,0,0" Padding="0,12,0,0" BorderBrush="#FFD0D0D0" BorderThickness="0,1,0,0">
+            <DockPanel LastChildFill="True">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="Revert"
+                            Command="{Binding RevertCommand}" />
+                    <Button Content="Apply"
+                            Command="{Binding ApplyCommand}"
+                            FontWeight="SemiBold" />
+                </StackPanel>
+                <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" VerticalAlignment="Center" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
