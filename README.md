@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Metadata Editor
 
 A native Windows desktop app for editing file metadata:
@@ -57,3 +58,6 @@ This app bundles **ExifTool** by Phil Harvey for reading and writing embedded me
 ## License
 
 MIT (application source). Bundled ExifTool remains under its own license.
+=======
+# DeepTag
+>>>>>>> f344581760eb71bcf3067e3cf3a4dc9046d52a53
